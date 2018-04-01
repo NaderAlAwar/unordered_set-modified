@@ -1,25 +1,27 @@
-// unordered_set standard header
-#pragma once
-#ifndef _UNORDERED_SET_
-#define _UNORDERED_SET_
-#ifndef RC_INVOKED
-#include <xhash>
+#ifndef MY_UNORDERED_SET
+#define MY_UNORDERED_SET
 
- #pragma pack(push,_CRT_PACKING)
- #pragma warning(push,_STL_WARNING_LEVEL)
- #pragma warning(disable: _STL_DISABLED_WARNINGS)
- #pragma push_macro("new")
- #undef new
+
+// unordered_set standard header
+#ifndef RC_INVOKED
+#include "my_xhash.h"
+#include "my_list.h"
+
+#pragma pack(push,_CRT_PACKING)
+#pragma warning(push,_STL_WARNING_LEVEL)
+#pragma warning(disable: _STL_DISABLED_WARNINGS)
+#pragma push_macro("new")
+#undef new
 
 _STD_BEGIN
-		// CLASS TEMPLATE _Uset_traits
+// CLASS TEMPLATE _Uset_traits
 template<class _Kty,	// key type (same as value type)
 	class _Tr,	// comparator predicate type
 	class _Alloc,	// actual allocator type (should be value allocator)
 	bool _Mfl>	// true if multiple equivalent keys are permitted
 	class _Uset_traits
-		: public _Tr
-	{	// traits required to make _Hash behave like a set
+	: public _Tr
+{	// traits required to make _Hash behave like a set
 public:
 	using key_type = _Kty;
 	using value_type = _Kty;
@@ -32,38 +34,39 @@ public:
 #endif /* _HAS_CXX17 */
 
 	enum
-		{	// make multi parameter visible as an enum constant
-		_Multi = _Mfl};
+	{	// make multi parameter visible as an enum constant
+		_Multi = _Mfl
+	};
 
 	static constexpr bool _Standard = true;
 
 	_Uset_traits(const _Tr& _Traits = _Tr())
 		: _Tr(_Traits)
-		{	// construct with specified comparator
-		}
+	{	// construct with specified comparator
+	}
 
 	using value_compare = key_compare;
 
 	static const _Kty& _Kfn(const value_type& _Val)
-		{	// return entire value as key
+	{	// return entire value as key
 		return (_Val);
-		}
+	}
 
 	static int _Nonkfn(const value_type&)
-		{	// extract "non-key" from element value (for container equality)
+	{	// extract "non-key" from element value (for container equality)
 		return (0);
-		}
-	};
+	}
+};
 
-		// CLASS TEMPLATE unordered_set
+// CLASS TEMPLATE unordered_set
 template<class _Kty,
 	class _Hasher = hash<_Kty>,
 	class _Keyeq = equal_to<_Kty>,
 	class _Alloc = allocator<_Kty>>
 	class unordered_set
-		: public _Hash<_Uset_traits<_Kty,
-			_Uhash_compare<_Kty, _Hasher, _Keyeq>, _Alloc, false>>
-	{	// hash table of key values, unique keys
+	: public _Hash<_Uset_traits<_Kty,
+	_Uhash_compare<_Kty, _Hasher, _Keyeq>, _Alloc, false>>
+{	// hash table of key values, unique keys
 public:
 	static_assert(!_ENFORCE_MATCHING_ALLOCATORS || is_same_v<_Kty, typename _Alloc::value_type>,
 		_MISMATCHED_ALLOCATOR_MESSAGE("unordered_set<T, Hasher, Eq, Allocator>", "T"));
@@ -81,7 +84,7 @@ public:
 	using difference_type = typename _Mybase::difference_type;
 	using pointer = typename _Mybase::pointer;
 	using const_pointer = typename _Mybase::const_pointer;
-	using reference = value_type&;
+	using reference = value_type & ;
 	using const_reference = const value_type&;
 	using iterator = typename _Mybase::iterator;
 	using const_iterator = typename _Mybase::const_iterator;
@@ -98,248 +101,250 @@ public:
 
 	unordered_set()
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct empty set from defaults
-		}
+	{	// construct empty set from defaults
+	}
 
 	explicit unordered_set(const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct empty set from defaults, allocator
-		}
+	{	// construct empty set from defaults, allocator
+	}
 
 	unordered_set(const unordered_set& _Right)
 		: _Mybase(_Right, _Alnode_traits::select_on_container_copy_construction(_Right._List._Getal()))
-		{	// construct set by copying _Right
-		}
+	{	// construct set by copying _Right
+	}
 
 	unordered_set(const unordered_set& _Right, const allocator_type& _Al)
 		: _Mybase(_Right, _Al)
-		{	// construct set by copying _Right, allocator
-		}
+	{	// construct set by copying _Right, allocator
+	}
 
 	explicit unordered_set(size_type _Buckets)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct empty set from bucket count
+	{	// construct empty set from bucket count
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_set(size_type _Buckets, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct empty set from bucket count and allocator
+	{	// construct empty set from bucket count and allocator
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_set(size_type _Buckets, const hasher& _Hasharg)
 		: _Mybase(key_compare(_Hasharg), allocator_type())
-		{	// construct empty set from bucket count and hasher
+	{	// construct empty set from bucket count and hasher
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_set(size_type _Buckets, const hasher& _Hasharg,
 		const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg), _Al)
-		{	// construct empty set from bucket count, hasher, and allocator
+	{	// construct empty set from bucket count, hasher, and allocator
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_set(size_type _Buckets, const hasher& _Hasharg,
 		const _Keyeq& _Keyeqarg)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
-		{	// construct empty set from bucket count, hasher, and equality comparator
+	{	// construct empty set from bucket count, hasher, and equality comparator
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_set(size_type _Buckets, const hasher& _Hasharg,
 		const _Keyeq& _Keyeqarg, const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
-		{	// construct empty set from bucket count, hasher, equality comparator, and allocator
+	{	// construct empty set from bucket count, hasher, equality comparator, and allocator
 		this->rehash(_Buckets);
-		}
+	}
 
 	template<class _Iter>
-		unordered_set(_Iter _First, _Iter _Last)
+	unordered_set(_Iter _First, _Iter _Last)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct set from sequence, defaults
+	{	// construct set from sequence, defaults
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_set(_Iter _First, _Iter _Last, const allocator_type& _Al)
+	unordered_set(_Iter _First, _Iter _Last, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct set from sequence and allocator
+	{	// construct set from sequence and allocator
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_set(_Iter _First, _Iter _Last,
-			size_type _Buckets)
+	unordered_set(_Iter _First, _Iter _Last,
+		size_type _Buckets)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct set from sequence and bucket count
+	{	// construct set from sequence and bucket count
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_set(_Iter _First, _Iter _Last,
-			size_type _Buckets, const allocator_type& _Al)
+	unordered_set(_Iter _First, _Iter _Last,
+		size_type _Buckets, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct set from sequence, bucket count, and allocator
+	{	// construct set from sequence, bucket count, and allocator
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_set(_Iter _First, _Iter _Last,
-			size_type _Buckets, const hasher& _Hasharg)
+	unordered_set(_Iter _First, _Iter _Last,
+		size_type _Buckets, const hasher& _Hasharg)
 		: _Mybase(key_compare(_Hasharg), allocator_type())
-		{	// construct set from sequence, bucket count, and hasher
+	{	// construct set from sequence, bucket count, and hasher
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_set(_Iter _First, _Iter _Last,
-			size_type _Buckets, const hasher& _Hasharg,
-			const allocator_type& _Al)
+	unordered_set(_Iter _First, _Iter _Last,
+		size_type _Buckets, const hasher& _Hasharg,
+		const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg), _Al)
-		{	// construct set from sequence, bucket count, hasher, and allocator
+	{	// construct set from sequence, bucket count, hasher, and allocator
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_set(_Iter _First, _Iter _Last,
-			size_type _Buckets, const hasher& _Hasharg,
-			const _Keyeq& _Keyeqarg)
+	unordered_set(_Iter _First, _Iter _Last,
+		size_type _Buckets, const hasher& _Hasharg,
+		const _Keyeq& _Keyeqarg)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
-		{	// construct set from sequence, bucket count, hasher, and equality comparator
+	{	// construct set from sequence, bucket count, hasher, and equality comparator
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_set(_Iter _First, _Iter _Last,
-			size_type _Buckets, const hasher& _Hasharg,
-			const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+	unordered_set(_Iter _First, _Iter _Last,
+		size_type _Buckets, const hasher& _Hasharg,
+		const _Keyeq& _Keyeqarg, const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
-		{	// construct set from sequence, bucket count, hasher, equality comparator, and allocator
+	{	// construct set from sequence, bucket count, hasher, equality comparator, and allocator
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	unordered_set& operator=(const unordered_set& _Right)
-		{	// assign by copying _Right
+	{	// assign by copying _Right
 		_Mybase::operator=(_Right);
 		return (*this);
-		}
+	}
 
 	unordered_set(unordered_set&& _Right)
 		: _Mybase(_STD move(_Right))
-		{	// construct set by moving _Right
-		}
+	{	// construct set by moving _Right
+	}
 
 	unordered_set(unordered_set&& _Right, const allocator_type& _Al)
 		: _Mybase(_STD move(_Right), _Al)
-		{	// construct set by moving _Right, allocator
-		}
+	{	// construct set by moving _Right, allocator
+	}
 
 	unordered_set& operator=(unordered_set&& _Right)
 		_NOEXCEPT_COND(_Alnode_traits::is_always_equal::value
 			&& is_nothrow_move_assignable_v<_Hasher>
 			&& is_nothrow_move_assignable_v<_Keyeq>)
-		{	// assign by moving _Right
+	{	// assign by moving _Right
 		_Mybase::operator=(_STD move(_Right));
 		return (*this);
-		}
+	}
 
 	void swap(unordered_set& _Right)
 		_NOEXCEPT_COND(_NOEXCEPT_OPER(_Mybase::swap(_Right))) // Strengthened
-		{	// exchange contents with non-movable _Right
+	{	// exchange contents with non-movable _Right
 		_Mybase::swap(_Right);
-		}
+	}
 
 	unordered_set(initializer_list<value_type> _Ilist)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct set from initializer_list, defaults
+	{	// construct set from initializer_list, defaults
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_set(initializer_list<value_type> _Ilist, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct set from initializer_list and allocator
+	{	// construct set from initializer_list and allocator
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_set(initializer_list<value_type> _Ilist,
 		size_type _Buckets)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct set from initializer_list and bucket count
+	{	// construct set from initializer_list and bucket count
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_set(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct set from initializer_list, bucket count, and allocator
+	{	// construct set from initializer_list, bucket count, and allocator
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_set(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const hasher& _Hasharg)
 		: _Mybase(key_compare(_Hasharg), allocator_type())
-		{	// construct set from initializer_list, bucket count, and hasher
+	{	// construct set from initializer_list, bucket count, and hasher
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_set(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const hasher& _Hasharg,
-			const allocator_type& _Al)
+		const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg), _Al)
-		{	// construct set from initializer_list, bucket count, hasher, and allocator
+	{	// construct set from initializer_list, bucket count, hasher, and allocator
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_set(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const hasher& _Hasharg,
-			const _Keyeq& _Keyeqarg)
+		const _Keyeq& _Keyeqarg)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
-		{	// construct set from initializer_list, bucket count, hasher, and equality comparator
+	{	// construct set from initializer_list, bucket count, hasher, and equality comparator
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_set(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const hasher& _Hasharg,
-			const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+		const _Keyeq& _Keyeqarg, const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
-		{	// construct from initializer_list, bucket count, hasher, equality comparator, and allocator
+	{	// construct from initializer_list, bucket count, hasher, equality comparator, and allocator
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_set& operator=(initializer_list<value_type> _Ilist)
-		{	// assign initializer_list
+	{	// assign initializer_list
 		this->clear();
 		this->insert(_Ilist);
 		return (*this);
-		}
+	}
 
 	hasher hash_function() const
-		{	// return hasher object
+	{	// return hasher object
 		return (this->_Traitsobj._Gethash());
-		}
+	}
 
 	key_equal key_eq() const
-		{	// return equality comparator object
+	{	// return equality comparator object
 		return (this->_Traitsobj._Getkeyeq());
-		}
+	}
+
+
 
 	using _Mybase::_Unchecked_begin;
 	using _Mybase::_Unchecked_end;
-	};
+};
 
 template<class _Kty,
 	class _Hasher,
@@ -347,10 +352,10 @@ template<class _Kty,
 	class _Alloc>
 	void swap(unordered_set<_Kty, _Hasher, _Keyeq, _Alloc>& _Left,
 		unordered_set<_Kty, _Hasher, _Keyeq, _Alloc>& _Right)
-		_NOEXCEPT_COND(_NOEXCEPT_OPER(_Left.swap(_Right)))
-	{	// swap _Left and _Right unordered_sets
+	_NOEXCEPT_COND(_NOEXCEPT_OPER(_Left.swap(_Right)))
+{	// swap _Left and _Right unordered_sets
 	_Left.swap(_Right);
-	}
+}
 
 template<class _Kty,
 	class _Hasher,
@@ -359,9 +364,9 @@ template<class _Kty,
 	bool operator==(
 		const unordered_set<_Kty, _Hasher, _Keyeq, _Alloc>& _Left,
 		const unordered_set<_Kty, _Hasher, _Keyeq, _Alloc>& _Right)
-	{	// test for unordered_set equality
+{	// test for unordered_set equality
 	return (_Hash_equal(_Left, _Right));
-	}
+}
 
 template<class _Kty,
 	class _Hasher,
@@ -370,19 +375,19 @@ template<class _Kty,
 	bool operator!=(
 		const unordered_set<_Kty, _Hasher, _Keyeq, _Alloc>& _Left,
 		const unordered_set<_Kty, _Hasher, _Keyeq, _Alloc>& _Right)
-	{	// test for unordered_set inequality
+{	// test for unordered_set inequality
 	return (!(_Left == _Right));
-	}
+}
 
-		// CLASS TEMPLATE unordered_multiset
+// CLASS TEMPLATE unordered_multiset
 template<class _Kty,
 	class _Hasher = hash<_Kty>,
 	class _Keyeq = equal_to<_Kty>,
 	class _Alloc = allocator<_Kty>>
 	class unordered_multiset
-		: public _Hash<_Uset_traits<_Kty,
-			_Uhash_compare<_Kty, _Hasher, _Keyeq>, _Alloc, true>>
-	{	// hash table of key values, non-unique keys
+	: public _Hash<_Uset_traits<_Kty,
+	_Uhash_compare<_Kty, _Hasher, _Keyeq>, _Alloc, true>>
+{	// hash table of key values, non-unique keys
 public:
 	static_assert(!_ENFORCE_MATCHING_ALLOCATORS || is_same_v<_Kty, typename _Alloc::value_type>,
 		_MISMATCHED_ALLOCATOR_MESSAGE("unordered_multiset<T, Hasher, Eq, Allocator>", "T"));
@@ -400,7 +405,7 @@ public:
 	using difference_type = typename _Mybase::difference_type;
 	using pointer = typename _Mybase::pointer;
 	using const_pointer = typename _Mybase::const_pointer;
-	using reference = value_type&;
+	using reference = value_type & ;
 	using const_reference = const value_type&;
 	using iterator = typename _Mybase::iterator;
 	using const_iterator = typename _Mybase::const_iterator;
@@ -410,254 +415,258 @@ public:
 
 	unordered_multiset()
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct empty set from defaults
-		}
+	{	// construct empty set from defaults
+	}
 
 	explicit unordered_multiset(const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct empty set from defaults, allocator
-		}
+	{	// construct empty set from defaults, allocator
+	}
 
 	unordered_multiset(const unordered_multiset& _Right)
 		: _Mybase(_Right, _Alnode_traits::select_on_container_copy_construction(_Right._List._Getal()))
-		{	// construct set by copying _Right
-		}
+	{	// construct set by copying _Right
+	}
 
 	unordered_multiset(const unordered_multiset& _Right, const allocator_type& _Al)
 		: _Mybase(_Right, _Al)
-		{	// construct set by copying _Right, allocator
-		}
+	{	// construct set by copying _Right, allocator
+	}
 
 	explicit unordered_multiset(size_type _Buckets)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct empty set from bucket count
+	{	// construct empty set from bucket count
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_multiset(size_type _Buckets, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct empty set from bucket count and allocator
+	{	// construct empty set from bucket count and allocator
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_multiset(size_type _Buckets, const hasher& _Hasharg)
 		: _Mybase(key_compare(_Hasharg), allocator_type())
-		{	// construct empty set from bucket count and hasher
+	{	// construct empty set from bucket count and hasher
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_multiset(size_type _Buckets, const hasher& _Hasharg,
 		const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg), _Al)
-		{	// construct empty set from bucket count, hasher, and allocator
+	{	// construct empty set from bucket count, hasher, and allocator
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_multiset(size_type _Buckets, const hasher& _Hasharg,
 		const _Keyeq& _Keyeqarg)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
-		{	// construct empty set from bucket count, hasher, and equality comparator
+	{	// construct empty set from bucket count, hasher, and equality comparator
 		this->rehash(_Buckets);
-		}
+	}
 
 	unordered_multiset(size_type _Buckets, const hasher& _Hasharg,
 		const _Keyeq& _Keyeqarg, const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
-		{	// construct empty set from bucket count, hasher, equality comparator, and allocator
+	{	// construct empty set from bucket count, hasher, equality comparator, and allocator
 		this->rehash(_Buckets);
-		}
+	}
 
 	template<class _Iter>
-		unordered_multiset(_Iter _First, _Iter _Last)
+	unordered_multiset(_Iter _First, _Iter _Last)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct set from sequence, defaults
+	{	// construct set from sequence, defaults
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_multiset(_Iter _First, _Iter _Last, const allocator_type& _Al)
+	unordered_multiset(_Iter _First, _Iter _Last, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct set from sequence and allocator
+	{	// construct set from sequence and allocator
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_multiset(_Iter _First, _Iter _Last,
-			size_type _Buckets)
+	unordered_multiset(_Iter _First, _Iter _Last,
+		size_type _Buckets)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct set from sequence and bucket count
+	{	// construct set from sequence and bucket count
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_multiset(_Iter _First, _Iter _Last,
-			size_type _Buckets, const allocator_type& _Al)
+	unordered_multiset(_Iter _First, _Iter _Last,
+		size_type _Buckets, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct set from sequence, bucket count, and allocator
+	{	// construct set from sequence, bucket count, and allocator
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_multiset(_Iter _First, _Iter _Last,
-			size_type _Buckets, const hasher& _Hasharg)
+	unordered_multiset(_Iter _First, _Iter _Last,
+		size_type _Buckets, const hasher& _Hasharg)
 		: _Mybase(key_compare(_Hasharg), allocator_type())
-		{	// construct set from sequence, bucket count, and hasher
+	{	// construct set from sequence, bucket count, and hasher
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_multiset(_Iter _First, _Iter _Last,
-			size_type _Buckets, const hasher& _Hasharg,
-			const allocator_type& _Al)
+	unordered_multiset(_Iter _First, _Iter _Last,
+		size_type _Buckets, const hasher& _Hasharg,
+		const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg), _Al)
-		{	// construct set from sequence, bucket count, hasher, and allocator
+	{	// construct set from sequence, bucket count, hasher, and allocator
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_multiset(_Iter _First, _Iter _Last,
-			size_type _Buckets, const hasher& _Hasharg,
-			const _Keyeq& _Keyeqarg)
+	unordered_multiset(_Iter _First, _Iter _Last,
+		size_type _Buckets, const hasher& _Hasharg,
+		const _Keyeq& _Keyeqarg)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
-		{	// construct set from sequence, bucket count, hasher, and equality comparator
+	{	// construct set from sequence, bucket count, hasher, and equality comparator
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	template<class _Iter>
-		unordered_multiset(_Iter _First, _Iter _Last,
-			size_type _Buckets, const hasher& _Hasharg,
-			const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+	unordered_multiset(_Iter _First, _Iter _Last,
+		size_type _Buckets, const hasher& _Hasharg,
+		const _Keyeq& _Keyeqarg, const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
-		{	// construct set from sequence, bucket count, hasher, equality comparator, and allocator
+	{	// construct set from sequence, bucket count, hasher, equality comparator, and allocator
 		this->rehash(_Buckets);
 		this->insert(_First, _Last);
-		}
+	}
 
 	unordered_multiset& operator=(const unordered_multiset& _Right)
-		{	// assign by copying _Right
+	{	// assign by copying _Right
 		_Mybase::operator=(_Right);
 		return (*this);
-		}
+	}
 
 	unordered_multiset(unordered_multiset&& _Right)
 		: _Mybase(_STD move(_Right))
-		{	// construct set by moving _Right
-		}
+	{	// construct set by moving _Right
+	}
 
 	unordered_multiset(unordered_multiset&& _Right, const allocator_type& _Al)
 		: _Mybase(_STD move(_Right), _Al)
-		{	// construct set by moving _Right, allocator
-		}
+	{	// construct set by moving _Right, allocator
+	}
 
 	unordered_multiset& operator=(unordered_multiset&& _Right)
 		_NOEXCEPT_COND(_Alnode_traits::is_always_equal::value
 			&& is_nothrow_move_assignable_v<_Hasher>
 			&& is_nothrow_move_assignable_v<_Keyeq>)
-		{	// assign by moving _Right
+	{	// assign by moving _Right
 		_Mybase::operator=(_STD move(_Right));
 		return (*this);
-		}
+	}
 
 	template<class... _Valty>
-		iterator emplace(_Valty&&... _Val)
-		{	// try to insert value_type(_Val...), favoring right side
+	iterator emplace(_Valty&&... _Val)
+	{	// try to insert value_type(_Val...), favoring right side
 		return (_Mybase::emplace(_STD forward<_Valty>(_Val)...).first);
-		}
+	}
 
 	void swap(unordered_multiset& _Right)
 		_NOEXCEPT_COND(_NOEXCEPT_OPER(_Mybase::swap(_Right))) // Strengthened
-		{	// exchange contents with non-movable _Right
+	{	// exchange contents with non-movable _Right
 		_Mybase::swap(_Right);
-		}
+	}
 
 	unordered_multiset(initializer_list<value_type> _Ilist)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct set from initializer_list, defaults
+	{	// construct set from initializer_list, defaults
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_multiset(initializer_list<value_type> _Ilist, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct set from initializer_list and allocator
+	{	// construct set from initializer_list and allocator
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_multiset(initializer_list<value_type> _Ilist,
 		size_type _Buckets)
 		: _Mybase(key_compare(), allocator_type())
-		{	// construct set from initializer_list and bucket count
+	{	// construct set from initializer_list and bucket count
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_multiset(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const allocator_type& _Al)
 		: _Mybase(key_compare(), _Al)
-		{	// construct set from initializer_list, bucket count, and allocator
+	{	// construct set from initializer_list, bucket count, and allocator
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_multiset(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const hasher& _Hasharg)
 		: _Mybase(key_compare(_Hasharg), allocator_type())
-		{	// construct set from initializer_list, bucket count, and hasher
+	{	// construct set from initializer_list, bucket count, and hasher
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_multiset(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const hasher& _Hasharg,
-			const allocator_type& _Al)
+		const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg), _Al)
-		{	// construct set from initializer_list, bucket count, hasher, and allocator
+	{	// construct set from initializer_list, bucket count, hasher, and allocator
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_multiset(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const hasher& _Hasharg,
-			const _Keyeq& _Keyeqarg)
+		const _Keyeq& _Keyeqarg)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), allocator_type())
-		{	// construct set from initializer_list, bucket count, hasher, and equality comparator
+	{	// construct set from initializer_list, bucket count, hasher, and equality comparator
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_multiset(initializer_list<value_type> _Ilist,
 		size_type _Buckets, const hasher& _Hasharg,
-			const _Keyeq& _Keyeqarg, const allocator_type& _Al)
+		const _Keyeq& _Keyeqarg, const allocator_type& _Al)
 		: _Mybase(key_compare(_Hasharg, _Keyeqarg), _Al)
-		{	// construct set from initializer_list, bucket count, hasher, equality comparator, and allocator
+	{	// construct set from initializer_list, bucket count, hasher, equality comparator, and allocator
 		this->rehash(_Buckets);
 		this->insert(_Ilist);
-		}
+	}
 
 	unordered_multiset& operator=(initializer_list<value_type> _Ilist)
-		{	// assign initializer_list
+	{	// assign initializer_list
 		this->clear();
 		this->insert(_Ilist);
 		return (*this);
-		}
+	}
 
 	hasher hash_function() const
-		{	// return hasher object
+	{	// return hasher object
 		return (this->_Traitsobj._Gethash());
-		}
+	}
 
 	key_equal key_eq() const
-		{	// return equality comparator object
+	{	// return equality comparator object
 		return (this->_Traitsobj._Getkeyeq());
-		}
+	}
 
-	using _Mybase::_Unchecked_begin;
+
+	iterator begin(){
+
+	}
+	//using _Mybase::_Unchecked_begin;
 	using _Mybase::_Unchecked_end;
-	};
+};
 
 template<class _Kty,
 	class _Hasher,
@@ -665,10 +674,10 @@ template<class _Kty,
 	class _Alloc>
 	void swap(unordered_multiset<_Kty, _Hasher, _Keyeq, _Alloc>& _Left,
 		unordered_multiset<_Kty, _Hasher, _Keyeq, _Alloc>& _Right)
-		_NOEXCEPT_COND(_NOEXCEPT_OPER(_Left.swap(_Right)))
-	{	// swap _Left and _Right unordered_multisets
+	_NOEXCEPT_COND(_NOEXCEPT_OPER(_Left.swap(_Right)))
+{	// swap _Left and _Right unordered_multisets
 	_Left.swap(_Right);
-	}
+}
 
 template<class _Kty,
 	class _Hasher,
@@ -677,9 +686,9 @@ template<class _Kty,
 	bool operator==(
 		const unordered_multiset<_Kty, _Hasher, _Keyeq, _Alloc>& _Left,
 		const unordered_multiset<_Kty, _Hasher, _Keyeq, _Alloc>& _Right)
-	{	// test for unordered_multiset equality
+{	// test for unordered_multiset equality
 	return (_Hash_equal(_Left, _Right));
-	}
+}
 
 template<class _Kty,
 	class _Hasher,
@@ -688,24 +697,28 @@ template<class _Kty,
 	bool operator!=(
 		const unordered_multiset<_Kty, _Hasher, _Keyeq, _Alloc>& _Left,
 		const unordered_multiset<_Kty, _Hasher, _Keyeq, _Alloc>& _Right)
-	{	// test for unordered_multiset inequality
+{	// test for unordered_multiset inequality
 	return (!(_Left == _Right));
-	}
+}
 
 #if _HAS_TR1_NAMESPACE
 namespace _DEPRECATE_TR1_NAMESPACE tr1 {
-using _STD unordered_multiset;
-using _STD unordered_set;
+	using _STD unordered_multiset;
+	using _STD unordered_set;
 }
 #endif /* _HAS_TR1_NAMESPACE */
 _STD_END
- #pragma pop_macro("new")
- #pragma warning(pop)
- #pragma pack(pop)
+#pragma pop_macro("new")
+#pragma warning(pop)
+#pragma pack(pop)
 #endif /* RC_INVOKED */
-#endif /* _UNORDERED_SET_ */
+
 
 /*
- * Copyright (c) by P.J. Plauger. All rights reserved.
- * Consult your license regarding permissions and restrictions.
+* Copyright (c) by P.J. Plauger. All rights reserved.
+* Consult your license regarding permissions and restrictions.
 V6.50:0009 */
+
+
+
+#endif
