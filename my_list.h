@@ -5,8 +5,8 @@
 #ifndef RC_INVOKED
 #include <xmemory>
 #include <stdexcept>
-#include <vector>
-#include <algorithm>
+#include <vector>									//added by nader
+#include <algorithm>								//added by nader
 
 #pragma pack(push,_CRT_PACKING)
 #pragma warning(push,_STL_WARNING_LEVEL)
@@ -227,7 +227,7 @@ public:
 		_SCL_SECURE_VALIDATE_RANGE(this->_Ptr != _Mycont->_Myhead);
 #endif /* _ITERATOR_DEBUG_LEVEL */
 
-		(*this)++;
+		(*this)++;																	//added by nader
 		return (*this);
 	}
 
@@ -269,7 +269,10 @@ public:
 				doesContain = false;
 			}
 		}
-
+		if (indicesVisited.size() == 0) {
+			this->_Ptr = this->_Ptr->_Next;
+			return *this;
+		}
 		int currentIndex = indicesVisited.at(indicesVisited.size() - 1);					//index in the last iteration
 		int steps_to_move = currentIndex - visitNow;										//move the iterator this many steps
 		indicesVisited.push_back(visitNow);													//record that visitNow is being visited
@@ -1114,6 +1117,9 @@ public:
 		tempit.sizeList = this->size();																//pass to the iterator the size of the list
 		srand(time(NULL));	
 		int mySize = this->size();
+		if (mySize == 0) {
+			return tempit;
+		}
 		int start = rand() % mySize;														//generate a random starting index
 		tempit.moveIterator(-start);														//move the iterator to the starting index
 		tempit.indicesVisited.push_back(start);														//record that this index has been visited
